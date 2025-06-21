@@ -1,8 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
+
 @Entity()
-export class Register {
-  @PrimaryGeneratedColumn()
+export class Auth {
+
+    @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ unique: true })
@@ -19,10 +21,7 @@ export class Register {
 
   @Column()
   password: string;
-
-  @Column()
-  confimar_password: string;
-
-  @Column()
-  registrarse: boolean;
+    
+    @Column({ default: false })
+    isActive: boolean;
 }

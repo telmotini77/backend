@@ -1,11 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { IniciarSessionController } from './iniciar_session/iniciar_session.controller';
-import { IniciarSessionModule } from './iniciar_session/iniciar_session.module';
-import { RegisterService } from './register/register.service';
-import { RegisterModule } from './register/register.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [ TypeOrmModule.forRoot({
@@ -18,8 +16,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   autoLoadEntities: true,
   synchronize: true, // Set to false in production
   }),
-    IniciarSessionModule, RegisterModule],
-  controllers: [AppController, IniciarSessionController],
-  providers: [AppService, RegisterService],
+    UsersModule, AuthModule],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
