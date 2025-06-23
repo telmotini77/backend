@@ -1,7 +1,4 @@
 export class CreateAuthDto {
-  nombres: string;
-  apellidos: string;
-  correo: string;
-  telefono: string;
+  email: string;      // <-- agrega esto si no existe
   password: string;
 }

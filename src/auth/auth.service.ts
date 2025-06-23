@@ -1,37 +1,49 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { UsersService } from '../users/users.service';
+import { JwtService } from '@nestjs/jwt';
 import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
-import { UsersService } from 'src/users/users.service';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { Rol } from 'src/users/enums/rol.enum';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  async register(createUserDto: CreateUserDto) {
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-    return this.usersService.create({
-      ...createUserDto,
-      password: hashedPassword,
-    })}
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  async login(createAuthDto: CreateAuthDto) {
+    const user = await this.usersService.findByEmail(createAuthDto.email);
+    if (!user) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+    const isPasswordValid = await bcrypt.compare(createAuthDto.password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Contraseña incorrecta');
+    }
+    const payload = { sub: user.id, email: user.email, rol: user.rol };
+    return {
+      access_token: this.jwtService.sign(payload),
+      user,
+    };
   }
+async register(createUserDto: CreateUserDto) {
+  const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+  const user = await this.usersService.create({
+    ...createUserDto,
+    password: hashedPassword,
+    rol: createUserDto.rol ?? Rol.USUARIO,
+  });
+  return {
+    message: 'Usuario registrado exitosamente',
+    user: {
+      id: user.id,
+      email: user.email,
+      rol: user.rol,
+    },
+  };
+}
 
-  findAll() {
-    return `This action returns all auth`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
-  }
+  // ...otros métodos como register...
 }
