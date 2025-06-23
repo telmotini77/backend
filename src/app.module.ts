@@ -8,11 +8,7 @@ import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [ TypeOrmModule.forRoot({
   type: 'postgres',
-  host: 'localhost',
-  port: 5432,
-  username: 'postgres',
-  password: '123456',
-  database: 'piensa',
+ url: process.env.DATABASE_URL,
   autoLoadEntities: true,
   synchronize: true, // Set to false in production
   }),
